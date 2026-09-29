@@ -1,0 +1,7 @@
+/.pytest_cache
+/.vscode
+/__pycache__
+/_error_messages.log
+/test
+/vault
+/vault_static
