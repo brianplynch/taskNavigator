@@ -440,7 +440,6 @@ class MainApplication:
 
         # initialize the top level process
         top_level_process_identifier = Identifier(top_level_file)
-        Process.get_all_identifiers()
         top_level_process = Process.load(top_level_process_identifier)
 
         # Setup the root TK application
