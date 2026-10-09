@@ -2,6 +2,7 @@
 results_report
 """
 
+from artifacts.activity import Activity
 from artifacts.artifact import Artifact
 from reports.reportBuilder import Report
 from timeStamps.dateStamp import DateStamp
@@ -66,13 +67,14 @@ def generate_task_summary_report(artifact: Artifact) -> Report:
 
 
 def generate_project_summary_report(artifact: Artifact) -> Report:
-    project_summary_report = Report("Project Summary Report", 1, f"Collects the Descriptions of children tasks and task-proxy activities into a single report")
-    activity_report = Report(artifact.identifier.build(), 2, artifact.detail)
-    project_summary_report.add_subsection(activity_report)
+    activity_report = Report(artifact.identifier.build(), 1, artifact.detail)
     tasks = artifact.get_children()
     for task in tasks:
-        if not task.proxy.is_null():
-            project_summary_report.add_subsection(generate_project_summary_report(task))
-        temp_report = Report(task.identifier.build(), 3, task.detail)
-        project_summary_report.add_subsection(temp_report)
-    return project_summary_report
+        if task.proxy.is_null():
+            activity_report.add_subsection(generate_project_summary_report(task))
+        else:
+            proxy_report = Report(task.identifier.build(), 2, task.detail)
+            proxy_artifact = Activity.load(task.proxy)
+            proxy_report.add_subsection(generate_project_summary_report(proxy_artifact))
+            activity_report.add_subsection(proxy_report)
+    return activity_report
