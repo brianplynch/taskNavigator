@@ -16,7 +16,7 @@ from artifacts.activity import Activity
 from artifacts.task import Task
 from identifiers.identifier import Identifier
 from reports.results_report import generate_task_summary_report, generate_project_summary_report
-from fileio.files import output_to_file
+from fileio.files import output_to_file, get_opened_notes
 from markdownBuilders.markdownTextReport import build_markdown_text_report
 from markdownBuilders.artifactBuilderMarkdown import ArtifactBuilderMarkdown
 from markdownBuilders.markdownTextReport import output_results_report
@@ -32,6 +32,10 @@ from fileio.files import open_folder
 # OPEN
 def open_src_command(filtered_list_frame: FilteredListFrame) -> None:
     filtered_list_frame.selected_item_object.open_source_file()
+
+
+def goto_open_note(filtered_list_frame: FilteredListFrame) -> None:
+    filtered_list_frame.set_filter_pattern(f"identifier:{get_opened_notes()[0]}")
     
 
 def open_folder_command(filtered_list_frame: FilteredListFrame) -> None:
@@ -546,7 +550,7 @@ class MainApplication:
         acts_selector.register_menu_function("OPEN",                  lambda *args: print(""))
         acts_selector.register_menu_function("    Note",              open_src_command)
         acts_selector.register_menu_function("    Folder",            open_folder_command)
-        acts_selector.register_menu_function("    Show Opened Note",  open_src_command)
+        acts_selector.register_menu_function("    Goto Opened Note",  goto_open_note)
         acts_selector.register_menu_function("    Open Client",        open_client_command)
 
         acts_selector.register_menu_function("MARKUP",                display_heading_message)
@@ -583,7 +587,7 @@ class MainApplication:
         task_selector.register_menu_function("OPEN",                  lambda *args: print(""))
         task_selector.register_menu_function("    Note",              open_src_command)
         task_selector.register_menu_function("    Folder",            open_folder_command)
-        task_selector.register_menu_function("    Show Opened Note",  open_src_command)
+        task_selector.register_menu_function("    Goto Opened Note",  goto_open_note)
         task_selector.register_menu_function("    Work Instructions", open_wi_command)
         task_selector.register_menu_function("    Open Proxy",        open_proxy_command)
 
