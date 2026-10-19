@@ -45,8 +45,10 @@ def open_folder_command(filtered_list_frame: FilteredListFrame) -> None:
 def open_wi_command(filtered_list_frame: FilteredListFrame) -> None:
     filtered_list_frame.selected_item_object.open_work_instruction_file()
 
+
 def open_best_practices_command(filtered_list_frame: FilteredListFrame) -> None:
     filtered_list_frame.selected_item_object.open_best_practices_file()
+
 
 def open_client_command(filtered_list_frame: FilteredListFrame) -> None:
     if filtered_list_frame.selected_item_object.client.is_null():
@@ -54,6 +56,7 @@ def open_client_command(filtered_list_frame: FilteredListFrame) -> None:
     else:
         client = filtered_list_frame.selected_item_object.get_client_artifact()
         client.open_source_file()
+        filtered_list_frame.child_filtered_list_frame.set_filter_pattern(f"identifier:{client.identifier}")
 
 
 def open_proxy_command(filtered_list_frame: FilteredListFrame) -> None:
@@ -62,6 +65,7 @@ def open_proxy_command(filtered_list_frame: FilteredListFrame) -> None:
     else:
         proxy = filtered_list_frame.selected_item_object.get_proxy_artifact()
         proxy.open_source_file()
+        filtered_list_frame.parent_filtered_list_frame.set_filter_pattern(f"identifier:{proxy.identifier}")
 
 
 # MARKUP
