@@ -23,6 +23,7 @@ def generate_results_report(date_stamps: list[DateStamp], artifact: Artifact):
 
     all_rolled_up_results = artifact.get_rolled_up_results()
     filtered_results = all_rolled_up_results.filter(time_stamps)
+    work_authorizations_used = list({result.work_authorization.build() for result in filtered_results.result_set})
 
     # report of each time stamp and what task was performed and brief description
     time_stamp_report_contents: list[str] = list()
@@ -45,6 +46,14 @@ def generate_results_report(date_stamps: list[DateStamp], artifact: Artifact):
     total_hours_report.description = f"Total Hours: {filtered_results.total_hours():.2f}"
     results_report.add_subsection(total_hours_report)
 
+    daily_hours_report = Report("Daily Hours")
+    for date_stamp in date_stamps:
+        daily_hours = filtered_results.filter([date_stamp]).total_hours()
+        daily_hours_report.description = f"{date_stamp.build()} hours: {daily_hours:.2f}"
+        for wa in work_authorizations_used:
+            wa_hours = filtered_results.filter([date_stamp], [wa]).total_hours()
+            daily_hours_report.description += f"\n{wa + ' hours: ':20}({wa_hours:.2f})"
+    results_report.add_subsection(daily_hours_report)
 
     time_stamp_report = Report("Time Stamps")
     time_stamp_report.description = chr(10).join(sorted(time_stamp_report_contents))
