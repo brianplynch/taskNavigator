@@ -165,7 +165,7 @@ class Artifact(ArtifactData):
                 artifact.start()
 
         with self as artifact:
-            artifact.results.log_now(artifact.work_authorization, description)
+            artifact.results.log_now(artifact.work_authorization, f"Work performed:\n{description}")
 
     def set_state(self, state) -> None:
         """
