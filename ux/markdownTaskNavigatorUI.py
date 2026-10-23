@@ -588,7 +588,7 @@ class MainApplication:
 
         acts_selector.bind_filtered_list_left_click(select_artifact)
         acts_selector.bind_filtered_list_double_click(open_src_command)
-        acts_selector.bind_filtered_list_middle_click = lambda *args: print("Tried to run: acts_selector.bind_filtered_list_middle_click\n... but nothing was defined")
+        acts_selector.bind_filtered_list_middle_click(lambda *args: acts_selector.display_message_to_user("Middle-Click has no effect"))
         acts_selector.bind_registered_actions_to_dropdown()
 
         # TASK SELECTOR MENU
@@ -628,7 +628,7 @@ class MainApplication:
 
         task_selector.bind_filtered_list_left_click(select_artifact)
         task_selector.bind_filtered_list_double_click(open_src_command)
-        task_selector.bind_filtered_list_middle_click = lambda *args: print("Tried to run: task_selector.bind_filtered_list_middle_click\n... but nothing was defined")
+        task_selector.bind_filtered_list_middle_click(log_result_command)
         task_selector.bind_registered_actions_to_dropdown()
         
         
