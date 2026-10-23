@@ -319,7 +319,11 @@ def select_artifact(filtered_list_frame: FilteredListFrame) -> None:
     # auto filter in-work children, alternately all children after a second click
     if filtered_list_frame.child_filtered_list_frame:
         children_artifacts = filtered_list_frame.selected_item_object.get_children_artifacts()
-        if filtered_list_frame.child_filtered_list_frame.filtered_objects == children_artifacts:
+        children_artifacts_ids = [art.identifier.build() for art in children_artifacts]
+        filtered_artifacts = filtered_list_frame.child_filtered_list_frame.filtered_objects
+        filtered_artifacts_ids = [art.identifier.build() for art in filtered_artifacts]
+
+        if children_artifacts_ids == filtered_artifacts_ids:
             open_children = filtered_list_frame.selected_item_object.get_not_closed_children()
             filtered_list_frame.child_filtered_list_frame.set_filtered_list(open_children)
         else:
