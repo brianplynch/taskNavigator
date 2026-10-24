@@ -118,6 +118,8 @@ class FilteredListFrame(Frame):
         self.filtered_list_selector.bind("<Double-1>", self.handle_filtered_list_double_click_event)
         self.filtered_list_selector.bind("<ButtonRelease-2>", self.handle_filtered_list_middle_click_event)
         self.filtered_list_selector.bind("<ButtonRelease-3>", self.handle_filtered_list_right_click_event)
+        self.filtered_list_selector.unbind_class("Listbox", "<MouseWheel>") # unbind any default mousewheen event handlers
+        self.filtered_list_selector.bind("<MouseWheel>", self.handle_mousewheel_event)
         logging.debug(f"FONT: {self.filtered_list_selector.cget('font')}")
 
         # initialize the callbacks
@@ -421,6 +423,12 @@ class FilteredListFrame(Frame):
         self.selected_item_text = self.get_selection_listbox(self.filtered_list_selector)[0]
         if self.filtered_list_left_click_callback is not None:
             self.filtered_list_left_click_callback(self)
+
+    def handle_mousewheel_event(self, *event) -> None:
+        if event.delta > 0:
+            self.filtered_list_selector.yview_scroll(-1, "units")
+        else:
+            self.filtered_list_selector.yview_scroll(1, "units")
 
     def handle_filtered_list_double_click_event(self, *event) -> None:
         if not self.filtered_list_selector.curselection():
