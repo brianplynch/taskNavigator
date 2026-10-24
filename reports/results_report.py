@@ -49,11 +49,20 @@ def generate_results_report(date_stamps: list[DateStamp], artifact: Artifact):
     daily_hours_report = Report("Daily Hours")
     for date_stamp in date_stamps:
         daily_hours = filtered_results.filter([date_stamp]).total_hours()
-        daily_hours_report.description = f"{date_stamp.build()} hours: {daily_hours:.2f}"
+        daily_hours_report.description += f"{date_stamp.build()} hours: {daily_hours:.2f}"
         for wa in work_authorizations_used:
             wa_hours = filtered_results.filter([date_stamp], [wa]).total_hours()
             daily_hours_report.description += f"\n{wa + ' hours: ':20}({wa_hours:.2f})"
     results_report.add_subsection(daily_hours_report)
+
+    completed_tasks_report = Report("Completed Activities and Tasks")
+    all_activities = artifact.get_activities()
+    completed_activities = chr(10).join([act.identifier.build_reference() for act in all_activities if act.completed in date_stamps])
+    all_tasks = artifact.get_tasks()
+    completed_tasks = chr(10).join([tsk.get_parent_artifact().identifier.build_reference() + "    " + tsk.identifier.build_reference() for tsk in all_tasks if tsk.completed in date_stamps])
+    completed_tasks_report.description = f"Completed Activities:\n{completed_activities}\n\nCompleted Tasks:\n{completed_tasks}"
+    results_report.add_subsection(completed_tasks_report)
+
 
     time_stamp_report = Report("Time Stamps")
     time_stamp_report.description = chr(10).join(sorted(time_stamp_report_contents))
