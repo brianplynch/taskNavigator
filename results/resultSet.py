@@ -94,7 +94,7 @@ class ResultSet(ResultSetData):
             lambda_time_stamp = lambda res: True
 
         if work_authorization_value:
-            lambda_work_authorization = lambda res: any([res.work_authorization == wa for wa in work_authorization_value])
+            lambda_work_authorization = lambda res: any([res.work_authorization.build() == wa for wa in work_authorization_value])
         else:
             lambda_work_authorization = lambda res: True
 

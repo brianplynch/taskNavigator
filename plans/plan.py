@@ -59,5 +59,6 @@ class Plan:
         return [art.identifier for art in self.artifacts]
 
     def add(self, artifact: ArtifactProxy) -> None:
-        if artifact not in self.artifacts:
+        text_of_idents: list[str] = [i.build() for i in self.get_artifact_ids()]
+        if artifact.identifier.build() not in text_of_idents:
             self.artifacts.append(artifact)

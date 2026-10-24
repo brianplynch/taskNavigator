@@ -2,6 +2,7 @@
 results_report
 """
 
+from artifacts.activity import Activity
 from artifacts.artifact import Artifact
 from reports.reportBuilder import Report
 from timeStamps.dateStamp import DateStamp
@@ -22,6 +23,7 @@ def generate_results_report(date_stamps: list[DateStamp], artifact: Artifact):
 
     all_rolled_up_results = artifact.get_rolled_up_results()
     filtered_results = all_rolled_up_results.filter(time_stamps)
+    work_authorizations_used = list({result.work_authorization.build() for result in filtered_results.result_set})
 
     # report of each time stamp and what task was performed and brief description
     time_stamp_report_contents: list[str] = list()
@@ -43,6 +45,23 @@ def generate_results_report(date_stamps: list[DateStamp], artifact: Artifact):
     total_hours_report = Report("Total Hours")
     total_hours_report.description = f"Total Hours: {filtered_results.total_hours():.2f}"
     results_report.add_subsection(total_hours_report)
+
+    daily_hours_report = Report("Daily Hours")
+    for date_stamp in date_stamps:
+        daily_hours = filtered_results.filter([date_stamp]).total_hours()
+        daily_hours_report.description += f"{date_stamp.build()} hours: {daily_hours:.2f}"
+        for wa in work_authorizations_used:
+            wa_hours = filtered_results.filter([date_stamp], [wa]).total_hours()
+            daily_hours_report.description += f"\n{wa + ' hours: ':20}({wa_hours:.2f})"
+    results_report.add_subsection(daily_hours_report)
+
+    completed_tasks_report = Report("Completed Activities and Tasks")
+    all_activities = artifact.get_activities()
+    completed_activities = chr(10).join([act.identifier.build_reference() for act in all_activities if act.completed in date_stamps])
+    all_tasks = artifact.get_tasks()
+    completed_tasks = chr(10).join([tsk.get_parent_artifact().identifier.build_reference() + "    " + tsk.identifier.build_reference() for tsk in all_tasks if tsk.completed in date_stamps])
+    completed_tasks_report.description = f"Completed Activities:\n{completed_activities}\n\nCompleted Tasks:\n{completed_tasks}"
+    results_report.add_subsection(completed_tasks_report)
 
 
     time_stamp_report = Report("Time Stamps")
@@ -66,13 +85,14 @@ def generate_task_summary_report(artifact: Artifact) -> Report:
 
 
 def generate_project_summary_report(artifact: Artifact) -> Report:
-    project_summary_report = Report("Project Summary Report", 1, f"Collects the Descriptions of children tasks and task-proxy activities into a single report")
-    activity_report = Report(artifact.identifier.build(), 2, artifact.detail)
-    project_summary_report.add_subsection(activity_report)
+    activity_report = Report(artifact.identifier.build(), 1, artifact.detail)
     tasks = artifact.get_children()
     for task in tasks:
-        if not task.proxy.is_null():
-            project_summary_report.add_subsection(generate_project_summary_report(task))
-        temp_report = Report(task.identifier.build(), 3, task.detail)
-        project_summary_report.add_subsection(temp_report)
-    return project_summary_report
+        if task.proxy.is_null():
+            activity_report.add_subsection(generate_project_summary_report(task))
+        else:
+            proxy_report = Report(task.identifier.build(), 2, task.detail)
+            proxy_artifact = Activity.load(task.proxy)
+            proxy_report.add_subsection(generate_project_summary_report(proxy_artifact))
+            activity_report.add_subsection(proxy_report)
+    return activity_report

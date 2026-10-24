@@ -80,7 +80,7 @@ class ArtifactBuilderMarkdown(ArtifactBuilder):
             "parent": Identifier.parse_reference(attributes["Parent"].strip()),
             "statement_of_work": attributes["Statement of Work"].strip(),
             "work_breakdown": attributes["Work Breakdown"].strip(),
-            "detail": Identifier.parse(identifier).primary_id,
+            "detail": attributes["Detail"].strip(),
             "work_authorization": Identifier.parse_reference(attributes["Work Authorization"].strip()),
             "state": state,
             "created": DateStamp.parse(attributes["Created"].strip()),

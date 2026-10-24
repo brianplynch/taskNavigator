@@ -16,7 +16,7 @@ from artifacts.activity import Activity
 from artifacts.task import Task
 from identifiers.identifier import Identifier
 from reports.results_report import generate_task_summary_report, generate_project_summary_report
-from fileio.files import output_to_file
+from fileio.files import output_to_file, get_opened_notes
 from markdownBuilders.markdownTextReport import build_markdown_text_report
 from markdownBuilders.artifactBuilderMarkdown import ArtifactBuilderMarkdown
 from markdownBuilders.markdownTextReport import output_results_report
@@ -32,6 +32,10 @@ from fileio.files import open_folder
 # OPEN
 def open_src_command(filtered_list_frame: FilteredListFrame) -> None:
     filtered_list_frame.selected_item_object.open_source_file()
+
+
+def goto_open_note(filtered_list_frame: FilteredListFrame) -> None:
+    filtered_list_frame.set_filter_pattern(f"identifier:{get_opened_notes()[0]}")
     
 
 def open_folder_command(filtered_list_frame: FilteredListFrame) -> None:
@@ -41,8 +45,10 @@ def open_folder_command(filtered_list_frame: FilteredListFrame) -> None:
 def open_wi_command(filtered_list_frame: FilteredListFrame) -> None:
     filtered_list_frame.selected_item_object.open_work_instruction_file()
 
+
 def open_best_practices_command(filtered_list_frame: FilteredListFrame) -> None:
     filtered_list_frame.selected_item_object.open_best_practices_file()
+
 
 def open_client_command(filtered_list_frame: FilteredListFrame) -> None:
     if filtered_list_frame.selected_item_object.client.is_null():
@@ -50,6 +56,7 @@ def open_client_command(filtered_list_frame: FilteredListFrame) -> None:
     else:
         client = filtered_list_frame.selected_item_object.get_client_artifact()
         client.open_source_file()
+        filtered_list_frame.child_filtered_list_frame.set_filter_pattern(f"identifier:{client.identifier}")
 
 
 def open_proxy_command(filtered_list_frame: FilteredListFrame) -> None:
@@ -58,6 +65,7 @@ def open_proxy_command(filtered_list_frame: FilteredListFrame) -> None:
     else:
         proxy = filtered_list_frame.selected_item_object.get_proxy_artifact()
         proxy.open_source_file()
+        filtered_list_frame.parent_filtered_list_frame.set_filter_pattern(f"identifier:{proxy.identifier}")
 
 
 # MARKUP
@@ -311,7 +319,11 @@ def select_artifact(filtered_list_frame: FilteredListFrame) -> None:
     # auto filter in-work children, alternately all children after a second click
     if filtered_list_frame.child_filtered_list_frame:
         children_artifacts = filtered_list_frame.selected_item_object.get_children_artifacts()
-        if filtered_list_frame.child_filtered_list_frame.filtered_objects == children_artifacts:
+        children_artifacts_ids = [art.identifier.build() for art in children_artifacts]
+        filtered_artifacts = filtered_list_frame.child_filtered_list_frame.filtered_objects
+        filtered_artifacts_ids = [art.identifier.build() for art in filtered_artifacts]
+
+        if children_artifacts_ids == filtered_artifacts_ids:
             open_children = filtered_list_frame.selected_item_object.get_not_closed_children()
             filtered_list_frame.child_filtered_list_frame.set_filtered_list(open_children)
         else:
@@ -440,7 +452,6 @@ class MainApplication:
 
         # initialize the top level process
         top_level_process_identifier = Identifier(top_level_file)
-        Process.get_all_identifiers()
         top_level_process = Process.load(top_level_process_identifier)
 
         # Setup the root TK application
@@ -547,7 +558,7 @@ class MainApplication:
         acts_selector.register_menu_function("OPEN",                  lambda *args: print(""))
         acts_selector.register_menu_function("    Note",              open_src_command)
         acts_selector.register_menu_function("    Folder",            open_folder_command)
-        acts_selector.register_menu_function("    Show Opened Note",  open_src_command)
+        acts_selector.register_menu_function("    Goto Opened Note",  goto_open_note)
         acts_selector.register_menu_function("    Open Client",        open_client_command)
 
         acts_selector.register_menu_function("MARKUP",                display_heading_message)
@@ -577,14 +588,14 @@ class MainApplication:
 
         acts_selector.bind_filtered_list_left_click(select_artifact)
         acts_selector.bind_filtered_list_double_click(open_src_command)
-        acts_selector.bind_filtered_list_middle_click = lambda *args: print("Tried to run: acts_selector.bind_filtered_list_middle_click\n... but nothing was defined")
+        acts_selector.bind_filtered_list_middle_click(lambda *args: acts_selector.display_message_to_user("Middle-Click has no effect"))
         acts_selector.bind_registered_actions_to_dropdown()
 
         # TASK SELECTOR MENU
         task_selector.register_menu_function("OPEN",                  lambda *args: print(""))
         task_selector.register_menu_function("    Note",              open_src_command)
         task_selector.register_menu_function("    Folder",            open_folder_command)
-        task_selector.register_menu_function("    Show Opened Note",  open_src_command)
+        task_selector.register_menu_function("    Goto Opened Note",  goto_open_note)
         task_selector.register_menu_function("    Work Instructions", open_wi_command)
         task_selector.register_menu_function("    Open Proxy",        open_proxy_command)
 
@@ -617,7 +628,7 @@ class MainApplication:
 
         task_selector.bind_filtered_list_left_click(select_artifact)
         task_selector.bind_filtered_list_double_click(open_src_command)
-        task_selector.bind_filtered_list_middle_click = lambda *args: print("Tried to run: task_selector.bind_filtered_list_middle_click\n... but nothing was defined")
+        task_selector.bind_filtered_list_middle_click(log_result_command)
         task_selector.bind_registered_actions_to_dropdown()
         
         
