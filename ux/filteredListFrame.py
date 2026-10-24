@@ -424,7 +424,7 @@ class FilteredListFrame(Frame):
         if self.filtered_list_left_click_callback is not None:
             self.filtered_list_left_click_callback(self)
 
-    def handle_mousewheel_event(self, *event) -> None:
+    def handle_mousewheel_event(self, event) -> None:
         if event.delta > 0:
             self.filtered_list_selector.yview_scroll(-1, "units")
         else:
