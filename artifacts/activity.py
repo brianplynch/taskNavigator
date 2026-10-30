@@ -26,7 +26,17 @@ class Activity(Artifact):
 
     def get_all_tasks_results(self):
         return self.get_parent_artifact().get_all_tasks_results()
-    
+
+    def send_resources_to_children(self) -> None:
+        for child in self.get_children_artifacts():
+            with child as child_artifact:
+                child_artifact.resources.merge(self.resources)
+
+    def send_deliverables_to_children(self) -> None:
+        for child in self.get_children_artifacts():
+            with child as child_artifact:
+                child_artifact.deliverables.merge(self.deliverables)
+
     def get_proxy_hours(self) -> float:
         """For multiple-level proxy artifact schemes,
             the summarized proxy hours may represent double-dipped
