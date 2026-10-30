@@ -62,22 +62,22 @@ class Result(ResultData):
     
     @classmethod
     def log(cls, time_stamp, work_authorization_number: Identifier, description: str = "...") -> Result:
-        return cls(time_stamp, work_authorization_number, description)
+        return cls(time_stamp, work_authorization_number, f"Work performed:\n{description}")
     
     @classmethod
     def log_now(cls, work_authorization_number: Identifier, description: str = "...") -> Result:
         time_stamp = TimeStamp.now()
-        return cls(time_stamp, work_authorization_number, description)
+        return cls(time_stamp, work_authorization_number, f"Work performed:\n{description}")
     
     @classmethod
     def log_next(cls, work_authorization_number: Identifier, description: str = "...") -> Result:
         time_stamp = TimeStamp.now().forward_interval(1)
-        return cls(time_stamp, work_authorization_number, description)
+        return cls(time_stamp, work_authorization_number, f"Work performed:\n{description}")
     
     @classmethod
     def log_previous(cls, work_authorization_number: Identifier, description: str = "...") -> Result:
         time_stamp = TimeStamp.now().forward_interval(-1)
-        return cls(time_stamp, work_authorization_number, description)
+        return cls(time_stamp, work_authorization_number, f"Work performed:\n{description}")
     
     def prepend_description(self, additional_description: str) -> None:
         self.description = f"{additional_description}\n\n{self.description}"
