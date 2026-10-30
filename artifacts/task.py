@@ -134,6 +134,7 @@ class Task(Artifact):
 
         time_stamps = TimeStamp.generate_timestamp_range(most_recent_timestamp.forward_interval(), TimeStamp.now())
         for time_stamp in time_stamps:
-            self.results.log(time_stamp, self.work_authorization, description)
+            with self as artifact:
+                artifact.results.log(time_stamp, self.work_authorization, description)
 
     
