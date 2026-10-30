@@ -566,8 +566,8 @@ class MainApplication:
         acts_selector.register_menu_function("    Open Client",        open_client_command)
 
         acts_selector.register_menu_function("MARKUP",                display_heading_message)
-        acts_selector.register_menu_function("    Send Resources to Tasks",                   lambda x: print(x))
-        acts_selector.register_menu_function("    Send Deliverables to Tasks",                lambda x: print(x))
+        acts_selector.register_menu_function("    Send Resources to Tasks",                   send_res_to_children_command)
+        acts_selector.register_menu_function("    Send Deliverables to Tasks",                send_del_to_children_command)
         acts_selector.register_menu_function("    Send Work Authorization to Children", send_wa_to_children_command)
 
         acts_selector.register_menu_function("STATE",                 display_heading_message)
