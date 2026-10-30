@@ -13,6 +13,11 @@ import logging
 from timeStamps.dateStamp import DateStamp
 
 
+class UnableToCompleteError(Exception):
+    """Enables forwarding to the calling function 
+    the condition of not being ready to set the artifact state to completed """
+
+
 class Activity(Artifact):
     """Activity class definition
     """
@@ -51,9 +56,16 @@ class Activity(Artifact):
     def start(self) -> None:
         """Change the state of the task to STARTED"""
         self.state.start()
+        self.send_resources_to_children()
 
     def complete(self) -> None:
+        if not self.ready_to_close():
+            raise UnableToCompleteError()
         self.state.complete()
+        self.send_deliverables_to_children()
+
+    def ready_to_close(self) -> bool:
+        return all([child.state.is_closed() for child in self.get_children()])
 
     def cancel(self) -> None:
         self.state.cancel()

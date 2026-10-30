@@ -12,7 +12,7 @@ from artifacts.artifact import Artifact
 from artifacts.process import Process
 from artifacts.role import Role
 from artifacts.responsibility import Responsibility
-from artifacts.activity import Activity
+from artifacts.activity import Activity, UnableToCompleteError
 from artifacts.task import Task
 from identifiers.identifier import Identifier
 from reports.results_report import generate_task_summary_report, generate_project_summary_report
@@ -123,8 +123,10 @@ def start_command(filtered_list_frame: FilteredListFrame) -> None:
 
 def complete_command(filtered_list_frame: FilteredListFrame) -> None:
     #complete
-    filtered_list_frame.selected_item_object.complete()
-    
+    try:
+        filtered_list_frame.selected_item_object.complete()
+    except UnableToCompleteError:
+        filtered_list_frame.display_message_to_user("Unable to Set to COMPLETED")
 
 def block_command(filtered_list_frame: FilteredListFrame) -> None:
     #block
