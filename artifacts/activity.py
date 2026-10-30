@@ -13,7 +13,7 @@ import logging
 from timeStamps.dateStamp import DateStamp
 
 
-class UnableToCompleteError(Exception):
+class UnableToCompleteActivityError(Exception):
     """Enables forwarding to the calling function 
     the condition of not being ready to set the artifact state to completed """
 
@@ -60,7 +60,7 @@ class Activity(Artifact):
 
     def complete(self) -> None:
         if not self.ready_to_close():
-            raise UnableToCompleteError()
+            raise UnableToCompleteActivityError()
         self.state.complete()
         self.send_deliverables_to_children()
 

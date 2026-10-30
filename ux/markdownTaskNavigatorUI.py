@@ -12,8 +12,8 @@ from artifacts.artifact import Artifact
 from artifacts.process import Process
 from artifacts.role import Role
 from artifacts.responsibility import Responsibility
-from artifacts.activity import Activity, UnableToCompleteError
-from artifacts.task import Task
+from artifacts.activity import Activity, UnableToCompleteActivityError
+from artifacts.task import Task, UnableToCompleteTaskError
 from identifiers.identifier import Identifier
 from reports.results_report import generate_task_summary_report, generate_project_summary_report
 from fileio.files import output_to_file, get_opened_notes
@@ -125,8 +125,10 @@ def complete_command(filtered_list_frame: FilteredListFrame) -> None:
     #complete
     try:
         filtered_list_frame.selected_item_object.complete()
-    except UnableToCompleteError:
-        filtered_list_frame.display_message_to_user("Unable to Set to COMPLETED")
+    except UnableToCompleteActivityError:
+        filtered_list_frame.display_message_to_user("Unable to Set to COMPLETED, check tasks")
+    except UnableToCompleteTaskError:
+        filtered_list_frame.display_message_to_user("Unable to Set to COMPLETED, check proxies")
 
 def block_command(filtered_list_frame: FilteredListFrame) -> None:
     #block

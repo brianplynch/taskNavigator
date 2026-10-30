@@ -10,6 +10,8 @@ from artifacts.artifact import Artifact
 from identifiers.identifier import Identifier
 from fileio.files import open_folder, get_filenames_in_path, output_to_file
 
+class UnableToCompleteTaskError(Exception):
+    """"""
 
 class Task(Artifact):
     """Task class definition
@@ -97,12 +99,24 @@ class Task(Artifact):
         work_instruction_path = Path(self.builder.vault).joinpath(f"{self.identifier.primary_id}_WI.md")
         open_file(work_instruction_path)
 
+    def ready_to_close(self) -> bool:
+        self_is_not_in_planning_state: bool = self.state.is_in_work() or self.state.is_closed()
+        task_ready_to_close: list[bool] = [self_is_not_in_planning_state]
+        if not self.proxy.is_null():
+            proxy_artifact = self.parent_type.load(self.proxy)
+            task_ready_to_close.append(proxy_artifact.ready_to_close())
+        return all(task_ready_to_close)
+
     def start(self) -> None:
         """Change the state of the task to STARTED"""
         self.state.start()
 
     def complete(self) -> None:
+        if not self.ready_to_close():
+            raise UnableToCompleteTaskError()
+        
         self.state.complete()
+        self.send_deliverables_to_parent()
 
     def cancel(self) -> None:
         self.state.cancel()
