@@ -125,7 +125,7 @@ class Artifact(ArtifactData):
     def set_proxy(self, proxy_artifact: Artifact) -> None:
         raise NotImplementedError("new_child must be implemented in the subclasses")
 
-    def set_client(self, client_artifact: Artifact) -> None:
+    def set_client(self, client: Artifact) -> None:
         raise NotImplementedError("new_child must be implemented in the subclasses")
 
     def get_children(self, max_recurssion: int = 0):
@@ -165,7 +165,7 @@ class Artifact(ArtifactData):
                 artifact.start()
 
         with self as artifact:
-            artifact.results.log_now(artifact.work_authorization, f"Work performed:\n{description}")
+            artifact.results.log_now(artifact.work_authorization, description)
 
     def set_state(self, state) -> None:
         """
@@ -216,6 +216,15 @@ class Artifact(ArtifactData):
         for child in children:
             merged_results.merge(child.get_identified_results())
         return merged_results
+
+    def get_project_results(self) -> ResultSet:
+        project_results = self.results.new_empty()
+        children = self.get_children(max_recurssion=4)
+        for child in children:
+            if child.proxy:
+                project_results.merge(child.get_project_results())
+            else:
+                project_results.merge(child.get_results())
 
     def get_results(self) -> ResultSet:
         results = self.results.new_empty()
