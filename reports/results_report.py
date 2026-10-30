@@ -47,12 +47,12 @@ def generate_results_report(date_stamps: list[DateStamp], artifact: Artifact):
     results_report.add_subsection(total_hours_report)
 
     daily_hours_report = Report("Daily Hours")
-    for date_stamp in date_stamps:
+    for date_stamp in reversed(date_stamps):
         daily_hours = filtered_results.filter([date_stamp]).total_hours()
-        daily_hours_report.description += f"{date_stamp.build()} hours: {daily_hours:.2f}"
+        daily_hours_report.description += f"\n\n{date_stamp.build()} hours: {daily_hours:.2f}"
         for wa in work_authorizations_used:
             wa_hours = filtered_results.filter([date_stamp], [wa]).total_hours()
-            daily_hours_report.description += f"\n{wa + ' hours: ':20}({wa_hours:.2f})"
+            daily_hours_report.description += f"\n\t{wa + ' hours: ':20}({wa_hours:.2f})"
     results_report.add_subsection(daily_hours_report)
 
     completed_tasks_report = Report("Completed Activities and Tasks")
@@ -85,13 +85,13 @@ def generate_task_summary_report(artifact: Artifact) -> Report:
 
 
 def generate_project_summary_report(artifact: Artifact) -> Report:
-    activity_report = Report(artifact.identifier.build(), 1, artifact.detail)
+    activity_report = Report(artifact.identifier.build(), 1, artifact.identifier.build_reference() + "\n\n" + artifact.detail)
     tasks = artifact.get_children()
     for task in tasks:
         if task.proxy.is_null():
             activity_report.add_subsection(generate_project_summary_report(task))
         else:
-            proxy_report = Report(task.identifier.build(), 2, task.detail)
+            proxy_report = Report(task.identifier.build_reference(), 2, task.detail)
             proxy_artifact = Activity.load(task.proxy)
             proxy_report.add_subsection(generate_project_summary_report(proxy_artifact))
             activity_report.add_subsection(proxy_report)
