@@ -16,6 +16,8 @@ class ActivityBackReference(Protocol):
     def set_state(self, state: ActivityArtifactState) -> None:...
     def send_resources_to_children(self) -> None:...
     def send_deliverables_to_children(self) -> None:...
+    def __enter__(self):...
+    def __exit__(self, exc_type, exc_val, exc_tb):...
     
 
 def start_activity(back_reference: ActivityBackReference) -> None:
@@ -191,6 +193,7 @@ class PlannedActivityArtifactState(ActivityArtifactState):
     def complete(self) -> None:
         """sets the state of the artifact to COMPLETED"""
         logging.info("Artifact state set to COMPLETED")
+        start_activity(self.back_reference)
         complete_activity(self.back_reference)
     
     def activate(self) -> None:
@@ -260,7 +263,7 @@ class StartedActivityArtifactState(ActivityArtifactState):
     def complete(self) -> None:
         """sets the state of the artifact to COMPLETED"""
         logging.info("Artifact state set to COMPLETED")
-        self.back_reference.set_state(CompletedActivityArtifactState(self.back_reference))
+        complete_activity(self.back_reference)
     
     def activate(self) -> None:
         """sets the state of the artifact to ACTIVE"""
@@ -572,6 +575,9 @@ class CompletedActivityArtifactState(ActivityArtifactState):
     def start(self) -> None:
         """sets the state of the artifact to STARTED"""
         logging.info("Artifact state set to STARTED")
+        # clear the completed date
+        with self.back_reference as art:
+            art.completed = DateStamp.null()
         start_activity(self.back_reference)
     
     def continual(self) -> None:
