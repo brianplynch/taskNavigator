@@ -82,6 +82,9 @@ class Result(ResultData):
     def prepend_description(self, additional_description: str) -> None:
         self.description = f"{additional_description}\n\n{self.description}"
 
+    def append_description(self, additional_description: str) -> None:
+        self.description = f"{self.description}\n\n{additional_description}"
+
     def build(self) -> str:
         return self.builder.build(self.time_stamp, self.work_authorization, self.description)
     
