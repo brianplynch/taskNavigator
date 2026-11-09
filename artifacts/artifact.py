@@ -177,7 +177,11 @@ class Artifact(ArtifactData):
             artifact.state = state
 
         with self as artifact:
-            artifact.new_result("Transition to " + state.name)
+            recent_result = artifact.results.most_recent_result()
+            if  recent_result:
+                recent_result.append_description("Transition to " + state.name)
+            else:
+                artifact.new_result("Transition to " + state.name)
         
         with self.get_parent_artifact() as parent:
             parent.add_to_plan(self)
