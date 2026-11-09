@@ -18,27 +18,16 @@ class ActivityBackReference(Protocol):
     def send_deliverables_to_children(self) -> None:...
     def __enter__(self):...
     def __exit__(self, exc_type, exc_val, exc_tb):...
-    
+    def complete(self) -> None: ...
 
 def start_activity(back_reference: ActivityBackReference) -> None:
     """Starts an activity artifact by setting its state to STARTED and sending resources and deliverables to its children."""
-    with back_reference as artifact:
-        artifact.set_state(StartedActivityArtifactState(artifact))
-    with back_reference as artifact:
-        artifact.started = DateStamp.today()
-    with back_reference as artifact:
-        artifact.send_resources_to_children()
+    back_reference.set_state(StartedActivityArtifactState(back_reference))
 
 
 def complete_activity(back_reference: ActivityBackReference) -> None:
     """Completes an activity artifact by setting its state to COMPLETED and sending deliverables to its children."""
-    with back_reference as artifact:
-        artifact.set_state(CompletedActivityArtifactState(artifact))
-    with back_reference as artifact:
-        artifact.completed = DateStamp.today()
-    with back_reference as artifact:
-        artifact.send_deliverables_to_children()
-    
+    back_reference.set_state(CompletedActivityArtifactState(back_reference))    
 
 
 class ActivityArtifactState(ArtifactState):
