@@ -4,6 +4,7 @@
 
 from pathlib import Path
 from fileio.files import open_file
+from timeStamps.dateStamp import DateStamp
 from timeStamps.timeStamp import TimeStamp
 from results.resultSet import ResultSet
 from artifacts.artifact import Artifact
@@ -110,6 +111,8 @@ class Task(Artifact):
     def start(self) -> None:
         """Change the state of the task to STARTED"""
         self.state.start()
+        with self as art:
+            art.started = DateStamp.today()
 
     def complete(self) -> None:
         if not self.ready_to_close():
@@ -117,6 +120,8 @@ class Task(Artifact):
         
         self.state.complete()
         self.send_deliverables_to_parent()
+        with self as art:
+            art.completed = DateStamp.from_datetime(self.results.most_recent_result().time_stamp.datetime())
 
     def cancel(self) -> None:
         self.state.cancel()
