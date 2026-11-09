@@ -57,12 +57,16 @@ class Activity(Artifact):
         """Change the state of the task to STARTED"""
         self.state.start()
         self.send_resources_to_children()
+        with self as art:
+            art.started = DateStamp.today()
 
     def complete(self) -> None:
         if not self.ready_to_close():
             raise UnableToCompleteActivityError()
         self.state.complete()
         self.send_deliverables_to_children()
+        with self as art:
+            art.completed = DateStamp.today()
 
     def ready_to_close(self) -> bool:
         return all([child.state.is_closed() for child in self.get_children()])
