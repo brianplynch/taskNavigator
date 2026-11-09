@@ -326,17 +326,18 @@ def select_artifact(filtered_list_frame: FilteredListFrame) -> None:
         children_artifacts_ids = [art.identifier.build() for art in children_artifacts]
         filtered_artifacts = filtered_list_frame.child_filtered_list_frame.filtered_objects
         filtered_artifacts_ids = [art.identifier.build() for art in filtered_artifacts]
+        open_children = filtered_list_frame.selected_item_object.get_not_closed_children()
+        open_children_ids = [art.identifier.build() for art in open_children]
 
-        if children_artifacts_ids == filtered_artifacts_ids:
-            open_children = filtered_list_frame.selected_item_object.get_not_closed_children()
-            filtered_list_frame.child_filtered_list_frame.set_filtered_list(open_children)
-        else:
+        if open_children_ids == filtered_artifacts_ids:
             if children_artifacts:
                 filtered_list_frame.child_filtered_list_frame.set_filtered_list(children_artifacts)
             else:
                 filtered_list_frame.child_filtered_list_frame.set_filtered_list([])
+        else:
+            filtered_list_frame.child_filtered_list_frame.set_filtered_list(open_children)
 
-
+        
 def reload_roles(filtered_list_frame: FilteredListFrame):
     try:
         current_selected_item = filtered_list_frame.selected_item_object
